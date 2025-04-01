@@ -29,6 +29,7 @@ private:
     int size;
     list<Position> path;
 public:
+    Crawler(int id, Position position, Direction direction, int size, list<Position> path);
     void move();
     bool isWayBlocked();
 };
