@@ -7,7 +7,7 @@ using namespace std;
 
 struct Cell
 {
-    int row, col;
+    int x, y;
 };
 
 class Board
@@ -15,22 +15,26 @@ class Board
 private:
     // 2d vector {(0,0), (1,0),..}
     vector<std::vector<Cell>> cells;
+
 public:
     // initializes the 10x10 grid
-    Board() {
+    Board() 
+    {
         cells.resize(10);
-        for (int row = 0; row < 10; row++) {
-            cells[row].resize(10);
-            for (int col = 0; col < 10; col++) {
-                cells[row][col] = {row, col};
+        for (int y = 0; y < 10; y++) 
+        {
+            cells[y].resize(10);
+            for (int x = 0; x < 10; x++) 
+            {
+                // e.g. cells[2][1] contains (1,2) coordinates 
+                cells[y][x] = {x, y};  
             }
         }
     }
-    Cell getCell(int row, int col)
+    Cell getCell(int x, int y) 
     {
-        return cells[row][col];
+        return cells[y][x];
     }
 };
 
 #endif // BOARD_H
-

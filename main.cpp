@@ -45,7 +45,7 @@ void populateCrawlers(vector<Crawler *>& crawlers)
             getline(fin, line);
             parse(line, id, x, y, direction, size);
             Position p = {x, y}; // or p.x = x, p.y = y;
-            Crawler *c1 = new Crawler(id, p, static_cast<Direction>(direction), size, true, {});
+            Crawler *c1 = new Crawler(id, p, static_cast<Direction>(direction), size, true, {p});
             crawlers.push_back(c1);
         }
         cout << "Crawlers loaded successfully!" << endl;
@@ -107,6 +107,15 @@ void displayAllBugs(const vector<Crawler*>& crawlers)
     }
 }
 
+void tapBugBoard(vector<Crawler*>& crawlers)
+{
+    for (Crawler* crawler : crawlers)
+    {
+        crawler->move();
+    }
+    cout << "All crawlers moved!" << endl;
+}
+
 void selectChoice(vector<Crawler*>& crawlers)
 {
     int choice = 0;
@@ -138,6 +147,7 @@ void selectChoice(vector<Crawler*>& crawlers)
         }
         case 4:
         {
+            tapBugBoard(crawlers);
             break;
         }
         case 5:
