@@ -8,7 +8,13 @@ Crawler::Crawler(unsigned int id, Position position, Direction direction, unsign
 
 string Crawler::getBugDetails() const
 {
-    return "Bug ID: " + to_string(id) + ", Position(x, y): (" + to_string(position.x) + ", " + to_string(position.y) + "), " + "Size: " + to_string(size) + ", Direction: " + getDirectionString() + ", Status: " + (alive ? "Alive" : "Dead");
+    return "Bug ID: " + to_string(id) 
+        + ", Position(x, y): (" 
+        + to_string(position.x) + ", " 
+        + to_string(position.y) + "), " 
+        + "Size: " + to_string(size) 
+        + ", Direction: " + getDirectionString() 
+        + ", Status: " + (alive ? "Alive" : "Dead");
 }
 
 string Crawler::getDirectionString() const
