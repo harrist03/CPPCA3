@@ -116,6 +116,17 @@ void tapBugBoard(vector<Crawler*>& crawlers)
     cout << "All crawlers moved!" << endl;
 }
 
+void displayLifeHistory(const vector<Crawler*>& crawlers) {
+    if (crawlers.empty()) {
+        cout << "No bugs to display." << endl;
+        return;
+    }
+
+    for (const Crawler* crawler : crawlers) {
+        cout << crawler->getLifeHistory() << endl;
+    }
+}
+
 void selectChoice(vector<Crawler*>& crawlers)
 {
     int choice = 0;
@@ -140,7 +151,7 @@ void selectChoice(vector<Crawler*>& crawlers)
         case 3:
         {
             int searchID;
-            cout << "Enter bug ID to be found: " << endl;
+            cout << "Enter bug ID to be found: ";
             cin >> searchID;
             findBugByID(searchID, crawlers);
             break;
@@ -152,6 +163,7 @@ void selectChoice(vector<Crawler*>& crawlers)
         }
         case 5:
         {
+            displayLifeHistory(crawlers);
             break;
         }
         case 6:
