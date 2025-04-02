@@ -127,6 +127,23 @@ void displayLifeHistory(const vector<Crawler*>& crawlers) {
     }
 }
 
+void saveLifeHistoryToFile(const vector<Crawler*>& crawlers)
+{
+    ofstream outFile("../bugs_life_history.txt");
+    if (!outFile)
+        {
+        cout << "Error: Could not create file!" << endl;
+        return;
+    }
+
+    for (const Crawler* crawler : crawlers)
+    {
+        outFile << crawler->getLifeHistory() << endl;
+    }
+
+    cout << "Life history saved to bugs_life_history.txt" << endl;
+}
+
 void selectChoice(vector<Crawler*>& crawlers)
 {
     int choice = 0;
@@ -175,7 +192,8 @@ void selectChoice(vector<Crawler*>& crawlers)
             break;
         }
         case 8:
-
+            saveLifeHistoryToFile(crawlers);
+            cout << "Exiting..." << endl;
             return;
         default:
             cout << "Invalid choice selected." << endl;
