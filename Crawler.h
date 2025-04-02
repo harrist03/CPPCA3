@@ -27,11 +27,15 @@ private:
     Position position; 
     Direction direction;
     int size;
+    bool alive;
     list<Position> path;
 public:
-    Crawler(int id, Position position, Direction direction, int size, list<Position> path);
+Crawler(unsigned int id, Position position, Direction direction, unsigned int size, bool alive = true, list<Position> path = {});
     void move();
     bool isWayBlocked();
+    string getBugDetails() const;
+    string getDirectionString() const;
+    unsigned int getBugID() const;
 };
 
 #endif // CRAWLER_H
