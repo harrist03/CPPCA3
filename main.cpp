@@ -28,7 +28,7 @@ void parse(string line, int& id, int& x, int& y, int& direction, int& size)
 
 void populateCrawlers(vector<Crawler *>& crawlers)
 {
-    ifstream fin("crawler-bugs.txt");
+    ifstream fin("../crawler-bugs.txt");
 
     if (fin)
     {
@@ -93,6 +93,20 @@ void findBugByID(int searchID, const vector<Crawler*>& crawlers)
     }
 }
 
+void displayAllBugs(const vector<Crawler*>& crawlers)
+{
+    if (crawlers.empty())
+    {
+        cout << "No bugs to display." << endl;
+        return;
+    }
+
+    for (const Crawler* crawler : crawlers)
+    {
+        cout << crawler->getBugDetails() << endl;
+    }
+}
+
 void tapBugBoard(vector<Crawler*>& crawlers)
 {
     for (Crawler* crawler : crawlers)
@@ -120,7 +134,7 @@ void selectChoice(vector<Crawler*>& crawlers)
         }
         case 2:
         {
-            
+            displayAllBugs(crawlers);
             break;
         }
         case 3:
