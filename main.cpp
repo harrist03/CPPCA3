@@ -116,6 +116,34 @@ void tapBugBoard(vector<Crawler*>& crawlers)
     cout << "All crawlers moved!" << endl;
 }
 
+void displayLifeHistory(const vector<Crawler*>& crawlers) {
+    if (crawlers.empty()) {
+        cout << "No bugs to display." << endl;
+        return;
+    }
+
+    for (const Crawler* crawler : crawlers) {
+        cout << crawler->getLifeHistory() << endl;
+    }
+}
+
+void saveLifeHistoryToFile(const vector<Crawler*>& crawlers)
+{
+    ofstream outFile("../bugs_life_history.txt");
+    if (!outFile)
+        {
+        cout << "Error: Could not create file!" << endl;
+        return;
+    }
+
+    for (const Crawler* crawler : crawlers)
+    {
+        outFile << crawler->getLifeHistory() << endl;
+    }
+
+    cout << "Life history saved to bugs_life_history.txt" << endl;
+}
+
 void selectChoice(vector<Crawler*>& crawlers)
 {
     int choice = 0;
@@ -140,7 +168,7 @@ void selectChoice(vector<Crawler*>& crawlers)
         case 3:
         {
             int searchID;
-            cout << "Enter bug ID to be found: " << endl;
+            cout << "Enter bug ID to be found: ";
             cin >> searchID;
             findBugByID(searchID, crawlers);
             break;
@@ -152,6 +180,7 @@ void selectChoice(vector<Crawler*>& crawlers)
         }
         case 5:
         {
+            displayLifeHistory(crawlers);
             break;
         }
         case 6:
@@ -163,7 +192,8 @@ void selectChoice(vector<Crawler*>& crawlers)
             break;
         }
         case 8:
-
+            saveLifeHistoryToFile(crawlers);
+            cout << "Exiting..." << endl;
             return;
         default:
             cout << "Invalid choice selected." << endl;
