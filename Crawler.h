@@ -32,6 +32,10 @@ private:
 
 public:
     Crawler(unsigned int id, Position position, Direction direction, unsigned int size, bool alive = true, list<Position> path = {});
+    unsigned int getSize() const;
+    void setSize(unsigned int newSize);
+    bool isAlive() const;
+    void setAlive(bool status);
     void move();
     bool isWayBlocked(Position newP);
     string getBugDetails() const;
@@ -39,6 +43,7 @@ public:
     unsigned int getBugID() const;
     Position getPosition() const;
     string getLifeHistory() const;
+    void fight(vector<Crawler*>& bugsInCell);
 };
 
 #endif // CRAWLER_H

@@ -1,10 +1,32 @@
 #include "Crawler.h"
+
+#include <random>
 #include <sstream>
 
 // allows non default values for Crawler
 Crawler::Crawler(unsigned int id, Position position, Direction direction, unsigned int size, bool alive, list<Position> path)
     : id(id), position(position), direction(direction), size(size), alive(alive), path(path)
 {
+}
+
+unsigned int Crawler::getSize() const
+{
+    return size;
+}
+
+void Crawler::setSize(unsigned int newSize)
+{
+    size = newSize;
+}
+
+bool Crawler::isAlive() const
+{
+    return alive;
+}
+
+void Crawler::setAlive(bool status)
+{
+    alive = status;
 }
 
 string Crawler::getBugDetails() const

@@ -49,6 +49,9 @@ void Board::displayAllCells()
         for (int x = 0; x < 10; x++)
         {
             const vector<string>& crawlersInCell = cells[y][x].crawlerIDs;
+
+            // every other position display uses (x,y) but the project brief example uses (y,x) only in this function
+            // it wouldn't make sense to flip the coordinates here? I wouldn't be able to find my bug at my expected location -> bad uxd
             cout << "(" << x << ", " << y << "): ";
             if (crawlersInCell.empty())
             {
