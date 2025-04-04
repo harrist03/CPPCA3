@@ -3,6 +3,7 @@
 #include "Crawler.h"
 #include "Board.h"
 #include <fstream>
+#include <map>
 #include <sstream>
 
 Board bugBoard;
@@ -118,15 +119,47 @@ void displayAllBugs(const vector<Crawler *> &crawlers)
     }
 }
 
+void checkAndHandleFights(vector<Crawler*>& crawlers)
+{
+    // map to group crawlers by their position
+    map<pair<int, int>, vector<Crawler*>> crawlersByPosition;
+
+    // group crawlers (alive only) by their position
+    for (Crawler* crawler : crawlers)
+    {
+        if (crawler->isAlive())
+        {
+            Position pos = crawler->getPosition();
+            crawlersByPosition[{pos.x, pos.y}].push_back(crawler);
+        }
+    }
+
+    // check each cell for multiple bugs and make them fight
+    for (auto& [position, cellCrawlers] : crawlersByPosition)
+    {
+        if (cellCrawlers.size() > 1)
+        {
+            // if there are multiple bugs in a cell, make them fight
+            cellCrawlers[0]->fight(cellCrawlers);
+        }
+    }
+}
+
 void tapBugBoard(vector<Crawler *> &crawlers)
 {
     for (Crawler *crawler : crawlers)
     {
-        crawler->move();
+        if (crawler->isAlive()) // only move bugs that are alive
+        {
+            crawler->move();
+        }
     }
 
     // update the board with new crawler positions
     bugBoard.addCrawlersToBoard(crawlers);
+
+    // check and handle fights in cells with multiple bugs
+    checkAndHandleFights(crawlers);
 
     cout << "All crawlers moved!" << endl;
 }
