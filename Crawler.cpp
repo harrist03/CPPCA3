@@ -193,9 +193,12 @@ string Crawler::getLifeHistory() const
         }
     }
 
-    if (isAlive()) {
+    if (isAlive())
+    {
         history << " Alive";
-    } else {
+    }
+    else
+    {
         history << " Eaten by " << to_string(getEatenByID());
     }
     return history.str();

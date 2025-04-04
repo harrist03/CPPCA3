@@ -5,6 +5,7 @@
 #include <fstream>
 #include <map>
 #include <sstream>
+#include <ctime>
 
 Board bugBoard;
 
@@ -177,7 +178,17 @@ void displayLifeHistory(const vector<Crawler *>& crawlers) {
 
 void saveLifeHistoryToFile(const vector<Crawler*>& crawlers)
 {
-    ofstream outFile("../bugs_life_history.txt");
+    // https://www.w3schools.com/cpp/trycpp.asp?filename=demo_date_strftime
+    time_t timestamp = time(NULL);
+    tm datetime = *localtime(&timestamp);
+
+    char dateAndTime[50];
+    strftime(dateAndTime, 50, "%Y-%m-%d_%H:%M:%S", &datetime);
+
+    stringstream filename;
+    filename << "../bugs_life_history_" << dateAndTime << ".txt";
+
+    ofstream outFile(filename.str());
     if (!outFile)
         {
         cout << "Error: Could not create file!" << endl;
@@ -189,7 +200,7 @@ void saveLifeHistoryToFile(const vector<Crawler*>& crawlers)
         outFile << crawler->getLifeHistory() << endl;
     }
 
-    cout << "Life history saved to bugs_life_history.txt" << endl;
+    cout << "Life history saved to " << filename.str() << endl;
 }
 
 void selectChoice(vector<Crawler *> &crawlers)
