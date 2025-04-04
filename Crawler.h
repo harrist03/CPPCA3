@@ -23,19 +23,22 @@ enum class Direction
 class Crawler
 {
 private:
-    int id;
+    unsigned int id;
     Position position;
     Direction direction;
-    int size;
+    unsigned int size;
     bool alive;
     list<Position> path;
+    int eatenByID;
 
 public:
-    Crawler(unsigned int id, Position position, Direction direction, unsigned int size, bool alive = true, list<Position> path = {});
+    Crawler(unsigned int id, Position position, Direction direction, unsigned int size, bool alive = true, list<Position> path = {}, int eatenByID = -1);
     unsigned int getSize() const;
     void setSize(unsigned int newSize);
     bool isAlive() const;
     void setAlive(bool status);
+    int getEatenByID() const;
+    void setEatenByID(int eaterID);
     void move();
     bool isWayBlocked(Position newP);
     string getBugDetails() const;

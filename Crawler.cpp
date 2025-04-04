@@ -4,8 +4,8 @@
 #include <sstream>
 
 // allows non default values for Crawler
-Crawler::Crawler(unsigned int id, Position position, Direction direction, unsigned int size, bool alive, list<Position> path)
-    : id(id), position(position), direction(direction), size(size), alive(alive), path(path)
+Crawler::Crawler(unsigned int id, Position position, Direction direction, unsigned int size, bool alive, list<Position> path, int eatenByID)
+    : id(id), position(position), direction(direction), size(size), alive(alive), path(path), eatenByID(eatenByID)
 {
 }
 
@@ -27,6 +27,16 @@ bool Crawler::isAlive() const
 void Crawler::setAlive(bool status)
 {
     alive = status;
+}
+
+int Crawler::getEatenByID() const
+{
+    return eatenByID;
+}
+
+void Crawler::setEatenByID(int eaterID)
+{
+    eatenByID = eaterID;
 }
 
 string Crawler::getBugDetails() const
@@ -161,6 +171,7 @@ void Crawler::fight(vector<Crawler*>& bugsInCell)
             cout << "Crawler " << bug->getBugID() << " is eaten by Crawler " << winner->getBugID() << "\n";
             winner->setSize(winner->getSize() + bug->getSize()); // increase winner's size by loser's size
             bug->setAlive(false); // mark the eaten bug as dead
+            bug->setEatenByID(winner->getBugID()); // record who ate the losing bug
         }
     }
 }
