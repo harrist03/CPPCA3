@@ -45,7 +45,7 @@ Position Crawler::getPosition() const
 
 bool Crawler::isWayBlocked(Position newP)
 {
-    return !(newP.x >= 0 || newP.x < 10 || newP.y >= 0 || newP.y < 10);
+    return !(newP.x >= 0 && newP.x < 10 && newP.y >= 0 && newP.y < 10);
 }
 
 void Crawler::move()
@@ -100,7 +100,7 @@ string Crawler::getLifeHistory() const {
     } else {
         for (auto it = path.begin(); it != path.end(); ++it) {
             history << "(" << it->x << "," << it->y << ")";
-            if (next(it) != path.end()) history << ",";
+            if (next(it) != path.end()) history << " -> ";
         }
     }
     /// TODO change this to show life status (alive or dead) once kill function is implemented

@@ -5,6 +5,8 @@
 #include <fstream>
 #include <sstream>
 
+Board bugBoard;
+
 void parse(string line, int &id, int &x, int &y, int &direction, int &size)
 {
     string temp;
@@ -75,9 +77,13 @@ void displayMenu()
 
 void initializeBugBoard(vector<Crawler *> &crawlers)
 {
+    // free each object's memory
+    for (Crawler* crawler : crawlers)
+    {
+        delete crawler;
+    }
+    crawlers.clear();
     populateCrawlers(crawlers);
-
-    Board bugBoard;
     bugBoard.addCrawlersToBoard(crawlers);
 }
 
@@ -119,34 +125,6 @@ void tapBugBoard(vector<Crawler *> &crawlers)
         crawler->move();
     }
     cout << "All crawlers moved!" << endl;
-}
-
-void displayLifeHistory(const vector<Crawler*>& crawlers) {
-    if (crawlers.empty()) {
-        cout << "No bugs to display." << endl;
-        return;
-    }
-
-    for (const Crawler* crawler : crawlers) {
-        cout << crawler->getLifeHistory() << endl;
-    }
-}
-
-void saveLifeHistoryToFile(const vector<Crawler*>& crawlers)
-{
-    ofstream outFile("../bugs_life_history.txt");
-    if (!outFile)
-        {
-        cout << "Error: Could not create file!" << endl;
-        return;
-    }
-
-    for (const Crawler* crawler : crawlers)
-    {
-        outFile << crawler->getLifeHistory() << endl;
-    }
-
-    cout << "Life history saved to bugs_life_history.txt" << endl;
 }
 
 void displayLifeHistory(const vector<Crawler *>& crawlers) {

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "Crawler.h"
 
 using namespace std;
 
@@ -19,7 +20,7 @@ private:
     vector<std::vector<Cell>> cells;
 
 public:
-    Board(); 
+    Board();
     Cell getCell(int x, int y) const;
     void addCrawlersToBoard(const vector<Crawler*> &crawlers);
 };
