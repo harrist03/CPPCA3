@@ -24,18 +24,20 @@ class Crawler
 {
 private:
     int id;
-    Position position; 
+    Position position;
     Direction direction;
     int size;
     bool alive;
     list<Position> path;
+
 public:
-Crawler(unsigned int id, Position position, Direction direction, unsigned int size, bool alive = true, list<Position> path = {});
+    Crawler(unsigned int id, Position position, Direction direction, unsigned int size, bool alive = true, list<Position> path = {});
     void move();
-    bool isWayBlocked();
+    bool isWayBlocked(Position newP);
     string getBugDetails() const;
     string getDirectionString() const;
     unsigned int getBugID() const;
+    Position getPosition() const;
 };
 
 #endif // CRAWLER_H
