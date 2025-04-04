@@ -22,18 +22,29 @@ Cell Board::getCell(int x, int y) const
 
 void Board::addCrawlersToBoard(const vector<Crawler*> &crawlers)
 {
+    // Clear all existing crawler IDs from the board
+    for (int y = 0; y < 10; y++)
+    {
+        for (int x = 0; x < 10; x++)
+        {
+            cells[y][x].crawlerIDs.clear(); // Reset all cells before updating
+        }
+    }
+
+    // Add crawlers to their latest positions
     for (Crawler* crawler : crawlers)
     {
         Position p = crawler->getPosition();
         string crawlerID = to_string(crawler->getBugID());
-        
+
         cells[p.y][p.x].crawlerIDs.push_back(crawlerID);
     }
 }
 
 void Board::displayAllCells()
 {
-
+    cout << "\nDisplaying cells by row x column (y,x)" << endl;
+    cout << string(60, '-') << endl;
     for (int y = 0; y < 10; y++)
     {
         for (int x = 0; x < 10; x++)

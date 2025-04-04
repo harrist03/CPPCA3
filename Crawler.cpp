@@ -1,10 +1,42 @@
 #include "Crawler.h"
+
+#include <random>
 #include <sstream>
 
 // allows non default values for Crawler
-Crawler::Crawler(unsigned int id, Position position, Direction direction, unsigned int size, bool alive, list<Position> path)
-    : id(id), position(position), direction(direction), size(size), alive(alive), path(path)
+Crawler::Crawler(unsigned int id, Position position, Direction direction, unsigned int size, bool alive, list<Position> path, int eatenByID)
+    : id(id), position(position), direction(direction), size(size), alive(alive), path(path), eatenByID(eatenByID)
 {
+}
+
+unsigned int Crawler::getSize() const
+{
+    return size;
+}
+
+void Crawler::setSize(unsigned int newSize)
+{
+    size = newSize;
+}
+
+bool Crawler::isAlive() const
+{
+    return alive;
+}
+
+void Crawler::setAlive(bool status)
+{
+    alive = status;
+}
+
+int Crawler::getEatenByID() const
+{
+    return eatenByID;
+}
+
+void Crawler::setEatenByID(int eaterID)
+{
+    eatenByID = eaterID;
 }
 
 string Crawler::getBugDetails() const
@@ -91,20 +123,83 @@ void Crawler::move()
     }
 }
 
-string Crawler::getLifeHistory() const {
+void Crawler::fight(vector<Crawler*>& bugsInCell)
+{
+    if (bugsInCell.size() < 2) return; // no fight happens if bugs < 2
+
+    // sort bugs by size in descending order
+    sort(bugsInCell.begin(), bugsInCell.end(),
+        [](Crawler* a, Crawler* b) { return a->getSize() > b->getSize(); });
+
+    // find the largest size
+    unsigned int maxSize = bugsInCell[0]->getSize();
+    vector<Crawler*> biggestBugs;
+
+    // find all bugs with the largest size
+    for (Crawler* bug : bugsInCell)
+    {
+        if (bug->getSize() == maxSize)
+        {
+            biggestBugs.push_back(bug);
+        }
+        else
+        {
+            break; // stop the loop when it reaches smaller bugs (works because the vector is sorted)
+        }
+    }
+
+    // determine the winner
+    Crawler* winner;
+    if (biggestBugs.size() > 1) // if multiple bugs have the max size, pick one randomly
+    {
+        srand(time(NULL));
+        int randomIndex = rand() % biggestBugs.size();
+        winner = biggestBugs[randomIndex];
+    }
+    else
+    {
+        winner = biggestBugs[0];
+    }
+
+    // display fight results
+    cout << "Crawler " << winner->getBugID() << " wins the fight at ("
+         << winner->getPosition().x << ", " << winner->getPosition().y << ")\n";
+
+    // winner eats all other bugs
+    for (Crawler* bug : bugsInCell) {
+        if (bug != winner && bug->isAlive()) {
+            cout << "Crawler " << bug->getBugID() << " is eaten by Crawler " << winner->getBugID() << "\n\n";
+            winner->setSize(winner->getSize() + bug->getSize()); // increase winner's size by loser's size
+            bug->setAlive(false); // mark the eaten bug as dead
+            bug->setEatenByID(winner->getBugID()); // record who ate the losing bug
+        }
+    }
+}
+
+string Crawler::getLifeHistory() const
+{
     stringstream history;
     history << id << " Crawler Path: ";
 
-    if (path.empty()) {
+    if (path.empty())
+    {
         history << "No movement recorded";
-    } else {
+    }
+    else
+    {
         for (auto it = path.begin(); it != path.end(); ++it) {
             history << "(" << it->x << "," << it->y << ")";
             if (next(it) != path.end()) history << " -> ";
         }
     }
-    /// TODO change this to show life status (alive or dead) once kill function is implemented
-    history << " Still Alive";
 
+    if (isAlive())
+    {
+        history << " Alive";
+    }
+    else
+    {
+        history << " Eaten by " << to_string(getEatenByID());
+    }
     return history.str();
 }
