@@ -192,8 +192,11 @@ string Crawler::getLifeHistory() const
             if (next(it) != path.end()) history << " -> ";
         }
     }
-    /// TODO change this to show life status (alive or dead) once kill function is implemented
-    history << " Still Alive";
 
+    if (isAlive()) {
+        history << " Alive";
+    } else {
+        history << " Eaten by " << to_string(getEatenByID());
+    }
     return history.str();
 }
