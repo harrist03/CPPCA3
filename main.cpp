@@ -196,6 +196,7 @@ void selectChoice(vector<Crawler *> &crawlers)
         }
         case 6:
         {
+            bugBoard.displayAllCells();
             break;
         }
         case 7:

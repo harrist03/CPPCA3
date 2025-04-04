@@ -23,6 +23,7 @@ public:
     Board();
     Cell getCell(int x, int y) const;
     void addCrawlersToBoard(const vector<Crawler*> &crawlers);
+    void displayAllCells();
 };
 
 #endif // BOARD_H
