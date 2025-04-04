@@ -1,6 +1,0 @@
-101 Crawler Path: (0,0) -> (0,1) Still Alive
-102 Crawler Path: (9,0) -> (9,1) Still Alive
-103 Crawler Path: (9,9) -> (9,8) Still Alive
-104 Crawler Path: (1,1) -> (2,1) Still Alive
-105 Crawler Path: (3,5) -> (3,4) Still Alive
-106 Crawler Path: (3,5) -> (3,4) Still Alive

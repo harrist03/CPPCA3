@@ -39,6 +39,8 @@ void populateCrawlers(vector<Crawler *> &crawlers)
         string line;
         while (!fin.eof())
         {
+            if (line.empty()) continue; // skip blank lines
+
             string bugType;
             int id;
             int x;
@@ -190,11 +192,12 @@ void saveLifeHistoryToFile(const vector<Crawler*>& crawlers)
 
     ofstream outFile(filename.str());
     if (!outFile)
-        {
+    {
         cout << "Error: Could not create file!" << endl;
         return;
     }
 
+    outFile << dateAndTime << endl;
     for (const Crawler* crawler : crawlers)
     {
         outFile << crawler->getLifeHistory() << endl;
