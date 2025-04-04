@@ -39,8 +39,6 @@ void populateCrawlers(vector<Crawler *> &crawlers)
         string line;
         while (!fin.eof())
         {
-            if (line.empty()) continue; // skip blank lines
-
             string bugType;
             int id;
             int x;
@@ -180,6 +178,11 @@ void displayLifeHistory(const vector<Crawler *>& crawlers) {
 
 void saveLifeHistoryToFile(const vector<Crawler*>& crawlers)
 {
+    if (crawlers.empty()) {
+        cout << "No bugs available." << endl;
+        return;
+    }
+
     // https://www.w3schools.com/cpp/trycpp.asp?filename=demo_date_strftime
     time_t timestamp = time(NULL);
     tm datetime = *localtime(&timestamp);
@@ -204,6 +207,84 @@ void saveLifeHistoryToFile(const vector<Crawler*>& crawlers)
     }
 
     cout << "Life history saved to " << filename.str() << endl;
+}
+
+void runSimulation(vector<Crawler*>& crawlers)
+{
+    cout << "\nStarting simulation..." << endl;
+    cout << "Tapping the board every 0.1 seconds" << endl;
+
+    int tapCount = 0;
+    bool simulationComplete = false;
+    int aliveCount = 0;
+    Crawler* lastCrawlerStanding = nullptr;
+
+    while (!simulationComplete)
+    {
+        // https://stackoverflow.com/questions/50136540/calling-a-function-every-1-second-precisely
+        clock_t startTime = clock();
+        while (clock() - startTime < CLOCKS_PER_SEC / 10); // 1/10 of a second
+
+        // tap the board and increment counter
+        tapCount++;
+        cout << "\nTap #" << tapCount << endl;
+        cout << string(60, '-') << endl;
+        // move all alive crawlers
+        for (Crawler* crawler : crawlers)
+        {
+            if (crawler->isAlive())
+            {
+                crawler->move();
+            }
+        }
+
+        // update the board with new crawler positions
+        bugBoard.addCrawlersToBoard(crawlers);
+        // trigger fights
+        checkAndHandleFights(crawlers);
+
+        // count alive crawlers and display positions
+        aliveCount = 0;
+        lastCrawlerStanding = nullptr; // reset last crawler standing each round
+        cout << "Crawler locations:" << endl;
+        for (Crawler* crawler : crawlers)
+        {
+            if (crawler->isAlive())
+            {
+                Position pos = crawler->getPosition();
+                cout << "Crawler " << crawler->getBugID() << ": (" << pos.x << ", " << pos.y
+                     << "), Size: " << crawler->getSize() << endl;
+                aliveCount++;
+                lastCrawlerStanding = crawler;  // keep track of the last standing crawler
+            }
+        }
+        cout << "\nAlive crawlers: " << aliveCount << "/" << crawlers.size() << endl;
+
+        // end simulation if only 1 bug remains alive
+        if (aliveCount <= 1)
+        {
+            simulationComplete = true;
+            cout << "Simulation complete! " << endl;
+            if (lastCrawlerStanding)
+            {
+                cout << "Last bug standing: Crawler " << lastCrawlerStanding->getBugID() << endl;
+            }
+        }
+
+        // maximum tap count to prevent infinite loop
+        if (tapCount >= 300)
+        {
+            simulationComplete = true;
+            cout << "Simulation stopped after " << tapCount << " taps." << endl;
+        }
+    }
+
+    // Display final state
+    cout << "\nFinal state after " << tapCount << " taps:" << endl;
+    displayAllBugs(crawlers);
+
+    // Save results to file
+    saveLifeHistoryToFile(crawlers);
 }
 
 void selectChoice(vector<Crawler *> &crawlers)
@@ -252,6 +333,14 @@ void selectChoice(vector<Crawler *> &crawlers)
         }
         case 7:
         {
+            if (crawlers.empty())
+            {
+                cout << "Please initialize the bug board first (option 1)." << endl;
+            }
+            else
+            {
+                runSimulation(crawlers);
+            }
             break;
         }
         case 8:

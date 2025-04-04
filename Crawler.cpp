@@ -162,13 +162,13 @@ void Crawler::fight(vector<Crawler*>& bugsInCell)
     }
 
     // display fight results
-    cout << "Crawler " << winner->getBugID() << " dominates at ("
+    cout << "Crawler " << winner->getBugID() << " wins the fight at ("
          << winner->getPosition().x << ", " << winner->getPosition().y << ")\n";
 
     // winner eats all other bugs
     for (Crawler* bug : bugsInCell) {
         if (bug != winner && bug->isAlive()) {
-            cout << "Crawler " << bug->getBugID() << " is eaten by Crawler " << winner->getBugID() << "\n";
+            cout << "Crawler " << bug->getBugID() << " is eaten by Crawler " << winner->getBugID() << "\n\n";
             winner->setSize(winner->getSize() + bug->getSize()); // increase winner's size by loser's size
             bug->setAlive(false); // mark the eaten bug as dead
             bug->setEatenByID(winner->getBugID()); // record who ate the losing bug
