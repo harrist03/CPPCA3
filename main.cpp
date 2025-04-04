@@ -124,6 +124,10 @@ void tapBugBoard(vector<Crawler *> &crawlers)
     {
         crawler->move();
     }
+
+    // update the board with new crawler positions
+    bugBoard.addCrawlersToBoard(crawlers);
+
     cout << "All crawlers moved!" << endl;
 }
 
