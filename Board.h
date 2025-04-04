@@ -2,12 +2,15 @@
 #define BOARD_H
 
 #include <vector>
+#include <string>
+#include "Crawler.h"
 
 using namespace std;
 
 struct Cell
 {
     int x, y;
+    vector<string> crawlerIDs;
 };
 
 class Board
@@ -17,24 +20,9 @@ private:
     vector<std::vector<Cell>> cells;
 
 public:
-    // initializes the 10x10 grid
-    Board() 
-    {
-        cells.resize(10);
-        for (int y = 0; y < 10; y++) 
-        {
-            cells[y].resize(10);
-            for (int x = 0; x < 10; x++) 
-            {
-                // e.g. cells[2][1] contains (1,2) coordinates 
-                cells[y][x] = {x, y};  
-            }
-        }
-    }
-    Cell getCell(int x, int y) 
-    {
-        return cells[y][x];
-    }
+    Board();
+    Cell getCell(int x, int y) const;
+    void addCrawlersToBoard(const vector<Crawler*> &crawlers);
 };
 
 #endif // BOARD_H

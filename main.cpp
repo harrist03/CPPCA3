@@ -5,7 +5,9 @@
 #include <fstream>
 #include <sstream>
 
-void parse(string line, int& id, int& x, int& y, int& direction, int& size)
+Board bugBoard;
+
+void parse(string line, int &id, int &x, int &y, int &direction, int &size)
 {
     string temp;
     stringstream ss(line);
@@ -26,7 +28,7 @@ void parse(string line, int& id, int& x, int& y, int& direction, int& size)
     size = stoi(temp);
 }
 
-void populateCrawlers(vector<Crawler *>& crawlers)
+void populateCrawlers(vector<Crawler *> &crawlers)
 {
     ifstream fin("../crawler-bugs.txt");
 
@@ -49,7 +51,9 @@ void populateCrawlers(vector<Crawler *>& crawlers)
             crawlers.push_back(c1);
         }
         cout << "Crawlers loaded successfully!" << endl;
-    } else {
+    }
+    else
+    {
         cout << "Error reading from file" << endl;
     }
 }
@@ -71,15 +75,22 @@ void displayMenu()
     cout << string(60, '-') << endl;
 }
 
-void initializeBugBoard(vector<Crawler*>& crawlers)
+void initializeBugBoard(vector<Crawler *> &crawlers)
 {
+    // free each object's memory
+    for (Crawler* crawler : crawlers)
+    {
+        delete crawler;
+    }
+    crawlers.clear();
     populateCrawlers(crawlers);
+    bugBoard.addCrawlersToBoard(crawlers);
 }
 
-void findBugByID(int searchID, const vector<Crawler*>& crawlers)
+void findBugByID(int searchID, const vector<Crawler *> &crawlers)
 {
     bool found = false;
-    for (Crawler* crawler : crawlers)
+    for (Crawler *crawler : crawlers)
     {
         if (searchID == crawler->getBugID())
         {
@@ -93,7 +104,7 @@ void findBugByID(int searchID, const vector<Crawler*>& crawlers)
     }
 }
 
-void displayAllBugs(const vector<Crawler*>& crawlers)
+void displayAllBugs(const vector<Crawler *> &crawlers)
 {
     if (crawlers.empty())
     {
@@ -101,22 +112,22 @@ void displayAllBugs(const vector<Crawler*>& crawlers)
         return;
     }
 
-    for (const Crawler* crawler : crawlers)
+    for (const Crawler *crawler : crawlers)
     {
         cout << crawler->getBugDetails() << endl;
     }
 }
 
-void tapBugBoard(vector<Crawler*>& crawlers)
+void tapBugBoard(vector<Crawler *> &crawlers)
 {
-    for (Crawler* crawler : crawlers)
+    for (Crawler *crawler : crawlers)
     {
         crawler->move();
     }
     cout << "All crawlers moved!" << endl;
 }
 
-void displayLifeHistory(const vector<Crawler*>& crawlers) {
+void displayLifeHistory(const vector<Crawler *>& crawlers) {
     if (crawlers.empty()) {
         cout << "No bugs to display." << endl;
         return;
@@ -144,7 +155,7 @@ void saveLifeHistoryToFile(const vector<Crawler*>& crawlers)
     cout << "Life history saved to bugs_life_history.txt" << endl;
 }
 
-void selectChoice(vector<Crawler*>& crawlers)
+void selectChoice(vector<Crawler *> &crawlers)
 {
     int choice = 0;
 
@@ -204,6 +215,5 @@ void selectChoice(vector<Crawler*>& crawlers)
 int main()
 {
     vector<Crawler *> crawlers;
-    Board bugBoard;
     selectChoice(crawlers);
 }
