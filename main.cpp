@@ -97,7 +97,7 @@ void findBugByID(int searchID, const vector<Crawler *> &crawlers)
         if (searchID == crawler->getBugID())
         {
             found = true;
-            cout << crawler->getBugDetails();
+            cout << crawler->getBugDetails() << endl;
         }
     }
     if (!found)
@@ -294,7 +294,15 @@ void selectChoice(vector<Crawler *> &crawlers)
     while (true)
     {
         displayMenu();
-        cin >> choice;
+
+        cout << "Enter your choice: ";
+        if (!(cin >> choice))
+        {
+            cin.clear();
+            cin.ignore(10000, '\n'); // discard invalid input
+            cout << "Invalid input. Please enter a number.\n";
+            continue;
+        }
 
         switch (choice)
         {
@@ -311,7 +319,7 @@ void selectChoice(vector<Crawler *> &crawlers)
         case 3:
         {
             int searchID;
-            cout << "Enter bug ID to be found: ";
+            cout << "\nEnter bug ID to be found: ";
             cin >> searchID;
             findBugByID(searchID, crawlers);
             break;
@@ -348,7 +356,7 @@ void selectChoice(vector<Crawler *> &crawlers)
             cout << "Exiting..." << endl;
             return;
         default:
-            cout << "Invalid choice selected." << endl;
+            cout << "Invalid choice selected. Please choose between 1 and 8." << endl;
         }
     }
 }
