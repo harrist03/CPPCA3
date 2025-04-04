@@ -1,4 +1,5 @@
 #include "Crawler.h"
+#include <sstream>
 
 // allows non default values for Crawler
 Crawler::Crawler(unsigned int id, Position position, Direction direction, unsigned int size, bool alive, list<Position> path)
@@ -88,4 +89,22 @@ void Crawler::move()
             moved = true;
         }
     }
+}
+
+string Crawler::getLifeHistory() const {
+    stringstream history;
+    history << id << " Crawler Path: ";
+
+    if (path.empty()) {
+        history << "No movement recorded";
+    } else {
+        for (auto it = path.begin(); it != path.end(); ++it) {
+            history << "(" << it->x << "," << it->y << ")";
+            if (next(it) != path.end()) history << ",";
+        }
+    }
+    /// TODO change this to show life status (alive or dead) once kill function is implemented
+    history << " Still Alive";
+
+    return history.str();
 }

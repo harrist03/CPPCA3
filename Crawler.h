@@ -38,6 +38,7 @@ public:
     string getDirectionString() const;
     unsigned int getBugID() const;
     Position getPosition() const;
+    string getLifeHistory() const;
 };
 
 #endif // CRAWLER_H
