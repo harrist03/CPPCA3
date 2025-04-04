@@ -49,7 +49,7 @@ void Board::displayAllCells()
         for (int x = 0; x < 10; x++)
         {
             const vector<string>& crawlersInCell = cells[y][x].crawlerIDs;
-            cout << "(" << y << ", " << x << "): ";
+            cout << "(" << x << ", " << y << "): ";
             if (crawlersInCell.empty())
             {
                 cout << "empty" << endl;
