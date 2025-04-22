@@ -72,7 +72,8 @@ void Hopper::move() override
 
 string Hopper::getBugDetails() const override
 {
-    return "Hopper ID: " + to_string(getBugID())
+    return "ID: " + to_string(getBugID())
+        + ", Type: Hopper"
         + ", Position(x, y): (" + to_string(getPosition().x) + ", " + to_string(getPosition().y) + "), "
         + "Size: " + to_string(getSize())
         + ", Direction: " + getDirectionString()

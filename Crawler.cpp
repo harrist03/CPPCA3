@@ -51,7 +51,8 @@ void Crawler::move()
 
 string Crawler::getBugDetails() const
 {
-    return "Crawler ID: " + to_string(getBugID())
+    return "ID: " + to_string(getBugID())
+        + ", Type: Crawler"
         + ", Position(x, y): (" + to_string(getPosition().x) + ", " + to_string(getPosition().y) + "), "
         + "Size: " + to_string(getSize())
         + ", Direction: " + getDirectionString()
