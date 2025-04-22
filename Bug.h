@@ -48,6 +48,7 @@ public:
     string getLifeHistory() const;
     void fight(vector<Bug*>& bugsInCell);
     virtual void move() = 0;
+    virtual ~Bug() = default;
 };
 
 
