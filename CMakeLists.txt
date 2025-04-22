@@ -5,4 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(CPPCA3 main.cpp Crawler.cpp Board.cpp
         Bug.cpp
-        Bug.h)
+        Bug.h
+        Hopper.cpp
+        Hopper.h)

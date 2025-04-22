@@ -14,9 +14,10 @@ public:
 
     // Getters and setters
     int getHopLength() const;
-    void setHopLength(int hopLength);
+    void setHopLength(int newHopLength);
 
     // Override virtual function from Bug
+    string getBugDetails() const override;
     void move() override;
 };
 
