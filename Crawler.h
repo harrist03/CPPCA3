@@ -11,6 +11,7 @@ public:
 
     // Override virtual function from Bug
     void move() override;
+    string getBugDetails() const override;
 };
 
 #endif // CRAWLER_H

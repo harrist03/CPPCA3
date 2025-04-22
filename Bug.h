@@ -41,13 +41,14 @@ public:
     int getEatenByID() const;
     void setEatenByID(int eaterID);
     bool isWayBlocked(Position newP);
-    string getBugDetails() const;
     string getDirectionString() const;
     unsigned int getBugID() const;
     Position getPosition() const;
     string getLifeHistory() const;
     void fight(vector<Bug*>& bugsInCell);
+
     virtual void move() = 0;
+    virtual string getBugDetails() const = 0;
     virtual ~Bug() = default;
 };
 

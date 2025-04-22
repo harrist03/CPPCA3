@@ -38,15 +38,6 @@ void Bug::setEatenByID(int eaterID)
     eatenByID = eaterID;
 }
 
-string Bug::getBugDetails() const
-{
-    return "Bug ID: " + to_string(id) 
-        + ", Position(x, y): (" + to_string(position.x) + ", " + to_string(position.y) + "), " 
-        + "Size: " + to_string(size) 
-        + ", Direction: " + getDirectionString() 
-        + ", Status: " + (alive ? "Alive" : "Dead");
-}
-
 string Bug::getDirectionString() const
 {
     switch (direction)

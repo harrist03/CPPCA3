@@ -48,3 +48,12 @@ void Crawler::move()
         }
     }
 }
+
+string Crawler::getBugDetails() const
+{
+    return "Crawler ID: " + to_string(getBugID())
+        + ", Position(x, y): (" + to_string(getPosition().x) + ", " + to_string(getPosition().y) + "), "
+        + "Size: " + to_string(getSize())
+        + ", Direction: " + getDirectionString()
+        + ", Status: " + (isAlive() ? "Alive" : "Dead");
+}
