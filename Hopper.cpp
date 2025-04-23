@@ -27,43 +27,48 @@ void Hopper::move()
     while (!moved)
     {
         Position newP = position;
+        int maxHop;
+
         switch (direction)
         {
             case Direction::North:
-                newP.y -= hopLength;
-            break;
+                if (position.y == 0) break;
+                maxHop = min(hopLength, position.y);
+                newP.y -= maxHop;
+                break;
+
             case Direction::East:
-                newP.x += hopLength;
-            break;
+                if (position.x == 9) break;
+                maxHop = min(hopLength, 9 - position.x);
+                newP.x += maxHop;
+                break;
+
             case Direction::South:
-                newP.y += hopLength;
-            break;
+                if (position.y == 9) break;
+                maxHop = min(hopLength, 9 - position.y);
+                newP.y += maxHop;
+                break;
+
             case Direction::West:
-                newP.x -= hopLength;
-            break;
+                if (position.x == 0) break;
+                maxHop = min(hopLength, position.x);
+                newP.x -= maxHop;
+                break;
+
             default:
                 break;
         }
 
-        if (isWayBlocked(newP))
+        // if move is still not valid (path blocked), pick new direction
+        if (newP.x == position.x && newP.y == position.y)
         {
             srand(time(0));
-            // generate between 1 and 4
             int newDirection = 1 + rand() % 4;
-            // new direction for hopper
             direction = static_cast<Direction>(newDirection);
         }
         else
         {
-            // check if it needs to adjust for hitting an edge
-            if (newP.x < 0) newP.x = 0;
-            if (newP.x >= 10) newP.x = 9;
-            if (newP.y < 0) newP.y = 0;
-            if (newP.y >= 10) newP.y = 9;
-
-            // update new position
             position = newP;
-            // added the new position to path list
             path.push_back(position);
             moved = true;
         }
