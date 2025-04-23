@@ -21,7 +21,7 @@ void Hopper::setHopLength(int newHopLength)
     hopLength = newHopLength;
 }
 
-void Hopper::move() override
+void Hopper::move()
 {
     bool moved = false;
     while (!moved)
@@ -70,7 +70,7 @@ void Hopper::move() override
     }
 }
 
-string Hopper::getBugDetails() const override
+string Hopper::getBugDetails() const
 {
     return "ID: " + to_string(getBugID())
         + ", Type: Hopper"

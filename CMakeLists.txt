@@ -3,8 +3,4 @@ project(CPPCA3)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(CPPCA3 main.cpp Crawler.cpp Board.cpp
-        Bug.cpp
-        Bug.h
-        Hopper.cpp
-        Hopper.h)
+add_executable(CPPCA3 main.cpp Crawler.cpp Board.cpp Bug.cpp Hopper.cpp)
