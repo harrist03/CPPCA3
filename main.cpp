@@ -13,6 +13,8 @@
 #include <chrono>
 #include <thread>
 
+#include "SuperBug.h"
+
 Board bugBoard;
 
 void parse(string line, int &id, int &x, int &y, int &direction, int &size, string &bugType, int &hopLength)
@@ -94,14 +96,14 @@ void displayMenu()
          << string(60, '-') << endl;
     cout << "Menu" << endl;
     cout << string(60, '-') << endl;
-    cout << "1. Initialize Bug Board (load data from file)" << endl;
+    cout << "1. Initialize Bug Board (restart simulation)" << endl;
     cout << "2. Display all Bugs" << endl;
     cout << "3. Find a Bug (given an id)" << endl;
     cout << "4. Tap the Bug Board (cause all to move, then fight/eat)" << endl;
     cout << "5. Display Life History of all Bugs (path taken)" << endl;
     cout << "6. Display all Cells listing their Bugs" << endl;
     cout << "7. Run simulation (generates a Tap every tenth of a second)" << endl;
-    cout << "8. Run simulation with SFML" << endl;
+    cout << "8. Run simulation with SFML (play as a super bug)" << endl;
     cout << "9. Exit (write Life History of all Bugs to file)" << endl;
     cout << string(60, '-') << endl;
 }
@@ -315,6 +317,62 @@ void runSimulation(vector<Bug *> &bugs)
     saveLifeHistoryToFile(bugs);
 }
 
+void startSFMLSimulation(vector<Bug *> &bugs)
+{
+    bool superBugExists = false;
+    SuperBug *superBug = nullptr;
+    // check if super bug already exists
+    for (Bug *bug : bugs)
+    {
+        // if existingSuperBug isn't a null pointer (tries to cast bug to SuperBug)
+        if (SuperBug *existingSuperBug = dynamic_cast<SuperBug *>(bug))
+        {
+            superBugExists = true;
+            if (!bug->isAlive())
+            {
+                cout << "SuperBug is dead. Please restart the simulation." << endl;
+                return;
+            }
+            superBug = existingSuperBug;
+            break;
+        }
+    }
+    if (!superBugExists)
+    {
+        // id: 999 for super bug
+        superBug = new SuperBug();
+        bugs.push_back(superBug);
+        // add super bug to board
+        bugBoard.addBugsToBoard(bugs);
+    }
+
+    BugRenderer renderer(800, 800);
+
+    while (renderer.isOpen())
+    {
+        // Process window events
+        renderer.processEvents(superBug, bugs);
+
+        // tapBugBoard(bugs);
+        for (Bug *bug : bugs)
+        {
+            if (bug != superBug && bug->isAlive())
+            {
+                bug->move();
+            }
+        }
+
+        bugBoard.addBugsToBoard(bugs);
+        checkAndHandleFights(bugs);
+
+        // Render current state
+        renderer.render(bugBoard, bugs);
+
+        // Delay between frames
+        std::this_thread::sleep_for(std::chrono::milliseconds(600));
+    }
+}
+
 void selectChoice(vector<Bug *> &bugs)
 {
     int choice = 0;
@@ -382,20 +440,13 @@ void selectChoice(vector<Bug *> &bugs)
         }
         case 8:
         {
-            BugRenderer renderer(800, 800);
-
-            while (renderer.isOpen())
+            if (bugs.empty())
             {
-                // Process window events
-                renderer.processEvents();
-
-                tapBugBoard(bugs);
-
-                // Render current state
-                renderer.render(bugBoard, bugs);
-
-                // Delay between frames
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                cout << "Please initialize the bug board first (option 1)." << endl;
+            }
+            else
+            {
+                startSFMLSimulation(bugs);
             }
             break;
         }

@@ -11,14 +11,19 @@ BugRenderer::BugRenderer(int width, int height)
     {
         std::cerr << "Error loading font" << std::endl;
     }
-    if (!crawlerTexture.loadFromFile("resources/crawler.png")) 
+    if (!crawlerTexture.loadFromFile("resources/crawler.png"))
     {
         std::cerr << "Error loading crawler texture" << std::endl;
-    } 
+    }
 
     if (!hopperTexture.loadFromFile("resources/hopper.png"))
     {
         std::cerr << "Error loading hopper texture" << std::endl;
+    }
+
+    if (!superBugTexture.loadFromFile("resources/superbug.png"))
+    {
+        std::cerr << "Error loading super bug texture" << std::endl;
     }
 }
 
@@ -78,18 +83,17 @@ void BugRenderer::drawBugs(const std::vector<Bug *> &bugs)
             // Create sprite for crawler
             sf::Sprite crawlerSprite;
             crawlerSprite.setTexture(crawlerTexture);
-            
-            // Scale the sprite to fit the cell (adjust these values as needed)
+
+            // Scale the sprite to fit the cell
             float scaleX = (cellSize * 0.7f) / crawlerTexture.getSize().x;
             float scaleY = (cellSize * 0.7f) / crawlerTexture.getSize().y;
             crawlerSprite.setScale(scaleX, scaleY);
-            
+
             // Center the sprite in the cell
             crawlerSprite.setPosition(
                 pos.x * cellSize + (cellSize - crawlerSprite.getGlobalBounds().width) / 2,
-                pos.y * cellSize + (cellSize - crawlerSprite.getGlobalBounds().height) / 2
-            );
-            
+                pos.y * cellSize + (cellSize - crawlerSprite.getGlobalBounds().height) / 2);
+
             // Draw the sprite
             window.draw(crawlerSprite);
         }
@@ -99,7 +103,7 @@ void BugRenderer::drawBugs(const std::vector<Bug *> &bugs)
             sf::Sprite hopperSprite;
             hopperSprite.setTexture(hopperTexture);
 
-            // Scale the sprite to fit the cell (adjust these values as needed)
+            // Scale the sprite to fit the cell
             float scaleX = (cellSize * 0.7f) / hopperTexture.getSize().x;
             float scaleY = (cellSize * 0.7f) / hopperTexture.getSize().y;
             hopperSprite.setScale(scaleX, scaleY);
@@ -107,11 +111,29 @@ void BugRenderer::drawBugs(const std::vector<Bug *> &bugs)
             // Center the sprite in the cell
             hopperSprite.setPosition(
                 pos.x * cellSize + (cellSize - hopperSprite.getGlobalBounds().width) / 2,
-                pos.y * cellSize + (cellSize - hopperSprite.getGlobalBounds().height) / 2
-            );
+                pos.y * cellSize + (cellSize - hopperSprite.getGlobalBounds().height) / 2);
 
             // Draw the sprite
             window.draw(hopperSprite);
+        }
+        else if (dynamic_cast<const SuperBug *>(bug))
+        {
+            // create sprite for superbug
+            sf::Sprite superBugSprite;
+            superBugSprite.setTexture(superBugTexture);
+
+            // make the superbug bigger in size
+            float scaleX = (cellSize * 1.2f) / superBugTexture.getSize().x;
+            float scaleY = (cellSize * 1.2f) / superBugTexture.getSize().y;
+            superBugSprite.setScale(scaleX, scaleY);
+
+            // Center the sprite in the cell
+            superBugSprite.setPosition(
+                pos.x * cellSize + (cellSize - superBugSprite.getGlobalBounds().width) / 2,
+                pos.y * cellSize + (cellSize - superBugSprite.getGlobalBounds().height) / 2);
+
+            // Draw the sprite
+            window.draw(superBugSprite);
         }
 
         // Draw the bug's size
@@ -120,12 +142,12 @@ void BugRenderer::drawBugs(const std::vector<Bug *> &bugs)
         idText.setString(std::to_string(bug->getSize()));
         idText.setCharacterSize(cellSize * 0.3f);
         idText.setPosition(pos.x * cellSize + cellSize * 0.4f, pos.y * cellSize + cellSize * 0.4f);
-        
+
         // Make text more visible
         idText.setFillColor(sf::Color::White);
         idText.setOutlineColor(sf::Color::Black);
         idText.setOutlineThickness(1.0f);
-        
+
         window.draw(idText);
     }
 }
@@ -145,7 +167,7 @@ bool BugRenderer::isOpen() const
     return window.isOpen();
 }
 
-void BugRenderer::processEvents()
+void BugRenderer::processEvents(SuperBug *superBug, vector<Bug *> &bugs)
 {
     sf::Event event;
     while (window.pollEvent(event))
@@ -153,5 +175,35 @@ void BugRenderer::processEvents()
         // check if user clicked the close button
         if (event.type == sf::Event::Closed)
             window.close();
+
+        // Add SuperBug keyboard handling
+        if (event.type == sf::Event::KeyPressed)
+        {
+            // move after keys are pressed
+            superBug->handleKeyboardInput(event.key.code);
+            superBug->move();
+        }
+    }
+
+    // Check if SuperBug is dead or no bugs are left
+    if (!superBug->isAlive() && superBug->getEatenByID() != -1)
+    {
+        std::cout << "SuperBug has died! Game over." << std::endl;
+        std::cout << "SuperBug was eaten by Bug #" << superBug->getEatenByID() << std::endl;
+        window.close();
+    }
+    
+    // Count alive bugs (excluding SuperBug)
+    int aliveBugs = 0;
+    for (const Bug* bug : bugs)
+    {
+        if (bug->isAlive() && bug != superBug)
+            aliveBugs++;
+    }
+    
+    if (aliveBugs == 0 && superBug->isAlive())
+    {
+        std::cout << "SuperBug has defeated all other bugs! Victory!" << std::endl;
+        window.close();
     }
 }
