@@ -312,6 +312,7 @@ void selectChoice(vector<Bug *> &bugs)
 
     while (true)
     {
+        srand(time(NULL));
         displayMenu();
 
         cout << "Enter your choice: ";
