@@ -1,5 +1,6 @@
 .vscode
 *.exe
+build
 /cmake-build-debug/.ninja_deps
 /cmake-build-debug/.ninja_log
 /cmake-build-debug/bugs_life_history.txt

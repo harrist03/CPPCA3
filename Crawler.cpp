@@ -1,5 +1,5 @@
 #include "Crawler.h"
-
+#include <algorithm>
 #include <random>
 #include <sstream>
 
@@ -106,7 +106,7 @@ void Crawler::move()
 
         if (isWayBlocked(newP))
         {
-            srand(time(0));
+            srand(time(NULL));
             // generate between 1 and 4
             int newDirection = 1 + rand() % 4;
             // new direction for crawler
