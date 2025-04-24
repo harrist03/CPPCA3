@@ -9,6 +9,10 @@
 #include <sstream>
 #include <ctime>
 
+#include "BugRenderer.h"
+#include <chrono>
+#include <thread>
+
 Board bugBoard;
 
 void parse(string line, int &id, int &x, int &y, int &direction, int &size, string &bugType, int &hopLength)
@@ -34,12 +38,13 @@ void parse(string line, int &id, int &x, int &y, int &direction, int &size, stri
     getline(ss, temp, ',');
     size = stoi(temp);
     // parse hop length (only for Hopper)
-    if (bugType == "Hopper" && getline(ss, temp, ',')) {
+    if (bugType == "Hopper" && getline(ss, temp, ','))
+    {
         hopLength = stoi(temp);
     }
 }
 
-void populateBugs(vector<Bug*> &bugs)
+void populateBugs(vector<Bug *> &bugs)
 {
     ifstream fin("../bugs.txt");
 
@@ -60,14 +65,18 @@ void populateBugs(vector<Bug*> &bugs)
             parse(line, id, x, y, direction, size, bugType, hopLength);
             Position p = {x, y}; // or p.x = x, p.y = y;
 
-            Bug* newBug = nullptr;
-            if (bugType == "Crawler") {
+            Bug *newBug = nullptr;
+            if (bugType == "Crawler")
+            {
                 newBug = new Crawler(id, p, static_cast<Direction>(direction), size, true, {p});
-            } else if (bugType == "Hopper") {
+            }
+            else if (bugType == "Hopper")
+            {
                 newBug = new Hopper(id, p, static_cast<Direction>(direction), size, hopLength, true, {p});
             }
 
-            if (newBug) {
+            if (newBug)
+            {
                 bugs.push_back(newBug);
             }
         }
@@ -92,14 +101,15 @@ void displayMenu()
     cout << "5. Display Life History of all Bugs (path taken)" << endl;
     cout << "6. Display all Cells listing their Bugs" << endl;
     cout << "7. Run simulation (generates a Tap every tenth of a second)" << endl;
-    cout << "8. Exit (write Life History of all Bugs to file)" << endl;
+    cout << "8. Run simulation with SFML" << endl;
+    cout << "9. Exit (write Life History of all Bugs to file)" << endl;
     cout << string(60, '-') << endl;
 }
 
 void initializeBugBoard(vector<Bug *> &bugs)
 {
     // free each object's memory
-    for (Bug* bug : bugs)
+    for (Bug *bug : bugs)
     {
         delete bug;
     }
@@ -139,13 +149,13 @@ void displayAllBugs(const vector<Bug *> &bugs)
     }
 }
 
-void checkAndHandleFights(vector<Bug *>& bugs)
+void checkAndHandleFights(vector<Bug *> &bugs)
 {
     // map to group bugs by their position
-    map<pair<int, int>, vector<Bug*>> bugsByPosition;
+    map<pair<int, int>, vector<Bug *>> bugsByPosition;
 
     // group bugs (alive only) by their position
-    for (Bug* bug : bugs)
+    for (Bug *bug : bugs)
     {
         if (bug->isAlive())
         {
@@ -155,7 +165,7 @@ void checkAndHandleFights(vector<Bug *>& bugs)
     }
 
     // check each cell for multiple bugs and make them fight
-    for (auto& [position, cellBugs] : bugsByPosition)
+    for (auto &[position, cellBugs] : bugsByPosition)
     {
         if (cellBugs.size() > 1)
         {
@@ -184,20 +194,24 @@ void tapBugBoard(vector<Bug *> &bugs)
     cout << "All bugs moved!" << endl;
 }
 
-void displayLifeHistory(const vector<Bug *>& bugs) {
-    if (bugs.empty()) {
+void displayLifeHistory(const vector<Bug *> &bugs)
+{
+    if (bugs.empty())
+    {
         cout << "No bugs to display." << endl;
         return;
     }
 
-    for (const Bug* bug : bugs) {
+    for (const Bug *bug : bugs)
+    {
         cout << bug->getLifeHistory() << endl;
     }
 }
 
-void saveLifeHistoryToFile(const vector<Bug *>& bugs)
+void saveLifeHistoryToFile(const vector<Bug *> &bugs)
 {
-    if (bugs.empty()) {
+    if (bugs.empty())
+    {
         cout << "No bugs available." << endl;
         return;
     }
@@ -220,7 +234,7 @@ void saveLifeHistoryToFile(const vector<Bug *>& bugs)
     }
 
     outFile << dateAndTime << endl;
-    for (const Bug* bug : bugs)
+    for (const Bug *bug : bugs)
     {
         outFile << bug->getLifeHistory() << endl;
     }
@@ -228,7 +242,7 @@ void saveLifeHistoryToFile(const vector<Bug *>& bugs)
     cout << "Life history saved to " << filename.str() << endl;
 }
 
-void runSimulation(vector<Bug*>& bugs)
+void runSimulation(vector<Bug *> &bugs)
 {
     cout << "\nStarting simulation..." << endl;
     cout << "Tapping the board every 0.1 seconds" << endl;
@@ -236,26 +250,21 @@ void runSimulation(vector<Bug*>& bugs)
     int tapCount = 0;
     bool simulationComplete = false;
     int aliveCount = 0;
-    Bug* lastBugStanding = nullptr;
+    Bug *lastBugStanding = nullptr;
 
     while (!simulationComplete)
     {
         // https://stackoverflow.com/questions/50136540/calling-a-function-every-1-second-precisely
         clock_t startTime = clock();
-        while (clock() - startTime < CLOCKS_PER_SEC / 10); // 1/10 of a second
+        while (clock() - startTime < CLOCKS_PER_SEC / 10)
+            ; // 1/10 of a second
 
         // tap the board and increment counter
         tapCount++;
         cout << "\nTap #" << tapCount << endl;
         cout << string(60, '-') << endl;
         // move all alive bugs
-        for (Bug* bug : bugs)
-        {
-            if (bug->isAlive())
-            {
-                bug->move();
-            }
-        }
+        tapBugBoard(bugs);
 
         // update the board with new bug positions
         bugBoard.addBugsToBoard(bugs);
@@ -266,7 +275,7 @@ void runSimulation(vector<Bug*>& bugs)
         aliveCount = 0;
         lastBugStanding = nullptr; // reset last bug standing each round
         cout << "Bug locations:" << endl;
-        for (Bug* bug : bugs)
+        for (Bug *bug : bugs)
         {
             if (bug->isAlive())
             {
@@ -274,7 +283,7 @@ void runSimulation(vector<Bug*>& bugs)
                 cout << "Bug " << bug->getBugID() << ": (" << pos.x << ", " << pos.y
                      << "), Size: " << bug->getSize() << endl;
                 aliveCount++;
-                lastBugStanding = bug;  // keep track of the last standing bug
+                lastBugStanding = bug; // keep track of the last standing bug
             }
         }
         cout << "\nAlive bugs: " << aliveCount << "/" << bugs.size() << endl;
@@ -372,9 +381,30 @@ void selectChoice(vector<Bug *> &bugs)
             break;
         }
         case 8:
+        {
+            BugRenderer renderer(800, 800);
+
+            while (renderer.isOpen())
+            {
+                // Process window events
+                renderer.processEvents();
+
+                tapBugBoard(bugs);
+
+                // Render current state
+                renderer.render(bugBoard, bugs);
+
+                // Delay between frames
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            }
+            break;
+        }
+        case 9:
+        {
             saveLifeHistoryToFile(bugs);
             cout << "Exiting..." << endl;
             return;
+        }
         default:
             cout << "Invalid choice selected. Please choose between 1 and 8." << endl;
         }
@@ -383,6 +413,6 @@ void selectChoice(vector<Bug *> &bugs)
 
 int main()
 {
-    vector<Bug*> bug_vector;
+    vector<Bug *> bug_vector;
     selectChoice(bug_vector);
 }
