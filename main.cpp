@@ -352,8 +352,8 @@ void startSFMLSimulation(vector<Bug *> &bugs)
     {
         // Process window events
         renderer.processEvents(superBug, bugs);
-
-        // tapBugBoard(bugs);
+        
+        // move if super bug is alive
         for (Bug *bug : bugs)
         {
             if (bug != superBug && bug->isAlive())

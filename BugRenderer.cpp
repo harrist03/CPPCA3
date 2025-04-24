@@ -136,7 +136,7 @@ void BugRenderer::drawBugs(const std::vector<Bug *> &bugs)
             window.draw(superBugSprite);
         }
 
-        // Draw the bug's size
+        // Draw the bug's size in text
         sf::Text idText;
         idText.setFont(font);
         idText.setString(std::to_string(bug->getSize()));
@@ -203,7 +203,7 @@ void BugRenderer::processEvents(SuperBug *superBug, vector<Bug *> &bugs)
     
     if (aliveBugs == 0 && superBug->isAlive())
     {
-        std::cout << "SuperBug has defeated all other bugs! Victory!" << std::endl;
+        std::cout << "SuperBug has defeated all other bugs! Victory! Press 1. to restart simulation" << std::endl;
         window.close();
     }
 }
