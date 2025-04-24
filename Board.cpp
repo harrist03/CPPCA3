@@ -1,5 +1,5 @@
 #include "Board.h"
-#include "Crawler.h"
+#include "Bug.h"
 
 Board::Board()
 {
@@ -20,24 +20,24 @@ Cell Board::getCell(int x, int y) const
     return cells[y][x];
 }
 
-void Board::addCrawlersToBoard(const vector<Crawler*> &crawlers)
+void Board::addBugsToBoard(const vector<Bug*> &bugs)
 {
-    // Clear all existing crawler IDs from the board
+    // Clear all existing bug IDs from the board
     for (int y = 0; y < 10; y++)
     {
         for (int x = 0; x < 10; x++)
         {
-            cells[y][x].crawlerIDs.clear(); // Reset all cells before updating
+            cells[y][x].bugIDs.clear(); // Reset all cells before updating
         }
     }
 
-    // Add crawlers to their latest positions
-    for (Crawler* crawler : crawlers)
+    // Add bugs to their latest positions
+    for (Bug* bug : bugs)
     {
-        Position p = crawler->getPosition();
-        string crawlerID = to_string(crawler->getBugID());
+        Position p = bug->getPosition();
+        string bugID = to_string(bug->getBugID());
 
-        cells[p.y][p.x].crawlerIDs.push_back(crawlerID);
+        cells[p.y][p.x].bugIDs.push_back(bugID);
     }
 }
 
@@ -49,19 +49,19 @@ void Board::displayAllCells()
     {
         for (int x = 0; x < 10; x++)
         {
-            const vector<string>& crawlersInCell = cells[y][x].crawlerIDs;
+            const vector<string>& bugsInCell = cells[y][x].bugIDs;
             cout << "(" << y << ", " << x << "): ";
-            if (crawlersInCell.empty())
+            if (bugsInCell.empty())
             {
                 cout << "empty" << endl;
             }
-            else if (crawlersInCell.size() > 0)
+            else if (bugsInCell.size() > 0)
             {
-                for (int i = 0; i < crawlersInCell.size(); i++)
+                for (int i = 0; i < bugsInCell.size(); i++)
                 {
                     if (i > 0)
                         cout << ", ";
-                    cout << "Crawler " <<  crawlersInCell[i];
+                        cout << "Bug " <<  bugsInCell[i];
                 }
                 cout << endl;
             }
