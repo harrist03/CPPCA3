@@ -2,6 +2,7 @@
 
 #include <random>
 #include <sstream>
+#include <algorithm>
 
 Bug::Bug(unsigned int id, Position position, Direction direction, unsigned int size, bool alive, list<Position> path, int eatenByID)
     : id(id), position(position), direction(direction), size(size), alive(alive), path(path), eatenByID(eatenByID)
@@ -99,7 +100,6 @@ void Bug::fight(vector<Bug*>& bugsInCell)
     Bug* winner;
     if (biggestBugs.size() > 1) // if multiple bugs have the max size, pick one randomly
     {
-        srand(time(NULL));
         int randomIndex = rand() % biggestBugs.size();
         winner = biggestBugs[randomIndex];
     }
@@ -109,13 +109,13 @@ void Bug::fight(vector<Bug*>& bugsInCell)
     }
 
     // display fight results
-    cout << "Crawler " << winner->getBugID() << " wins the fight at ("
+    cout << "Bug " << winner->getBugID() << " wins the fight at ("
          << winner->getPosition().x << ", " << winner->getPosition().y << ")\n";
 
     // winner eats all other bugs
     for (Bug* bug : bugsInCell) {
         if (bug != winner && bug->isAlive()) {
-            cout << "Crawler " << bug->getBugID() << " is eaten by Crawler " << winner->getBugID() << "\n\n";
+            cout << "Bug " << bug->getBugID() << " is eaten by Bug " << winner->getBugID() << "\n\n";
             winner->setSize(winner->getSize() + bug->getSize()); // increase winner's size by loser's size
             bug->setAlive(false); // mark the eaten bug as dead
             bug->setEatenByID(winner->getBugID()); // record who ate the losing bug
@@ -126,7 +126,7 @@ void Bug::fight(vector<Bug*>& bugsInCell)
 string Bug::getLifeHistory() const
 {
     stringstream history;
-    history << id << " Crawler Path: ";
+    history << id << " Bug Path: ";
 
     if (path.empty())
     {

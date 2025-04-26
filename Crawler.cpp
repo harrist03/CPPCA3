@@ -32,7 +32,6 @@ void Crawler::move()
 
         if (isWayBlocked(newP))
         {
-            srand(time(0));
             // generate between 1 and 4
             int newDirection = 1 + rand() % 4;
             // new direction for crawler
