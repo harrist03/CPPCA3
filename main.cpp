@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include "Bug.h"
+#include "Hopper.h"
 #include "Crawler.h"
 #include "Board.h"
 #include <fstream>
@@ -7,12 +9,21 @@
 #include <sstream>
 #include <ctime>
 
+#include "BugRenderer.h"
+#include <chrono>
+#include <thread>
+
+#include "SuperBug.h"
+
 Board bugBoard;
 
-void parse(string line, int &id, int &x, int &y, int &direction, int &size)
+void parse(string line, int &id, int &x, int &y, int &direction, int &size, string &bugType, int &hopLength)
 {
     string temp;
     stringstream ss(line);
+    // parse bug type
+    getline(ss, temp, ',');
+    bugType = temp;
     // parse id
     getline(ss, temp, ',');
     id = stoi(temp);
@@ -28,11 +39,16 @@ void parse(string line, int &id, int &x, int &y, int &direction, int &size)
     // parse size
     getline(ss, temp, ',');
     size = stoi(temp);
+    // parse hop length (only for Hopper)
+    if (bugType == "Hopper" && getline(ss, temp, ','))
+    {
+        hopLength = stoi(temp);
+    }
 }
 
-void populateCrawlers(vector<Crawler *> &crawlers)
+void populateBugs(vector<Bug *> &bugs)
 {
-    ifstream fin("../crawler-bugs.txt");
+    ifstream fin("../bugs.txt");
 
     if (fin)
     {
@@ -45,14 +61,28 @@ void populateCrawlers(vector<Crawler *> &crawlers)
             int y;
             int direction;
             int size;
+            int hopLength = 0;
 
             getline(fin, line);
-            parse(line, id, x, y, direction, size);
+            parse(line, id, x, y, direction, size, bugType, hopLength);
             Position p = {x, y}; // or p.x = x, p.y = y;
-            Crawler *c1 = new Crawler(id, p, static_cast<Direction>(direction), size, true, {p});
-            crawlers.push_back(c1);
+
+            Bug *newBug = nullptr;
+            if (bugType == "Crawler")
+            {
+                newBug = new Crawler(id, p, static_cast<Direction>(direction), size, true, {p});
+            }
+            else if (bugType == "Hopper")
+            {
+                newBug = new Hopper(id, p, static_cast<Direction>(direction), size, hopLength, true, {p});
+            }
+
+            if (newBug)
+            {
+                bugs.push_back(newBug);
+            }
         }
-        cout << "Crawlers loaded successfully!" << endl;
+        cout << "Bugs loaded successfully!" << endl;
     }
     else
     {
@@ -66,38 +96,39 @@ void displayMenu()
          << string(60, '-') << endl;
     cout << "Menu" << endl;
     cout << string(60, '-') << endl;
-    cout << "1. Initialize Bug Board (load data from file)" << endl;
+    cout << "1. Initialize Bug Board (restart simulation)" << endl;
     cout << "2. Display all Bugs" << endl;
     cout << "3. Find a Bug (given an id)" << endl;
     cout << "4. Tap the Bug Board (cause all to move, then fight/eat)" << endl;
     cout << "5. Display Life History of all Bugs (path taken)" << endl;
     cout << "6. Display all Cells listing their Bugs" << endl;
     cout << "7. Run simulation (generates a Tap every tenth of a second)" << endl;
-    cout << "8. Exit (write Life History of all Bugs to file)" << endl;
+    cout << "8. Run simulation with SFML (play as a super bug)" << endl;
+    cout << "9. Exit (write Life History of all Bugs to file)" << endl;
     cout << string(60, '-') << endl;
 }
 
-void initializeBugBoard(vector<Crawler *> &crawlers)
+void initializeBugBoard(vector<Bug *> &bugs)
 {
     // free each object's memory
-    for (Crawler* crawler : crawlers)
+    for (Bug *bug : bugs)
     {
-        delete crawler;
+        delete bug;
     }
-    crawlers.clear();
-    populateCrawlers(crawlers);
-    bugBoard.addCrawlersToBoard(crawlers);
+    bugs.clear();
+    populateBugs(bugs);
+    bugBoard.addBugsToBoard(bugs);
 }
 
-void findBugByID(int searchID, const vector<Crawler *> &crawlers)
+void findBugByID(int searchID, const vector<Bug *> &bugs)
 {
     bool found = false;
-    for (Crawler *crawler : crawlers)
+    for (Bug *bug : bugs)
     {
-        if (searchID == crawler->getBugID())
+        if (searchID == bug->getBugID())
         {
             found = true;
-            cout << crawler->getBugDetails() << endl;
+            cout << bug->getBugDetails() << endl;
         }
     }
     if (!found)
@@ -106,79 +137,83 @@ void findBugByID(int searchID, const vector<Crawler *> &crawlers)
     }
 }
 
-void displayAllBugs(const vector<Crawler *> &crawlers)
+void displayAllBugs(const vector<Bug *> &bugs)
 {
-    if (crawlers.empty())
+    if (bugs.empty())
     {
         cout << "No bugs to display." << endl;
         return;
     }
 
-    for (const Crawler *crawler : crawlers)
+    for (const Bug *bug : bugs)
     {
-        cout << crawler->getBugDetails() << endl;
+        cout << bug->getBugDetails() << endl;
     }
 }
 
-void checkAndHandleFights(vector<Crawler*>& crawlers)
+void checkAndHandleFights(vector<Bug *> &bugs)
 {
-    // map to group crawlers by their position
-    map<pair<int, int>, vector<Crawler*>> crawlersByPosition;
+    // map to group bugs by their position
+    map<pair<int, int>, vector<Bug *>> bugsByPosition;
 
-    // group crawlers (alive only) by their position
-    for (Crawler* crawler : crawlers)
+    // group bugs (alive only) by their position
+    for (Bug *bug : bugs)
     {
-        if (crawler->isAlive())
+        if (bug->isAlive())
         {
-            Position pos = crawler->getPosition();
-            crawlersByPosition[{pos.x, pos.y}].push_back(crawler);
+            Position pos = bug->getPosition();
+            bugsByPosition[{pos.x, pos.y}].push_back(bug);
         }
     }
 
     // check each cell for multiple bugs and make them fight
-    for (auto& [position, cellCrawlers] : crawlersByPosition)
+    for (auto &[position, cellBugs] : bugsByPosition)
     {
-        if (cellCrawlers.size() > 1)
+        if (cellBugs.size() > 1)
         {
             // if there are multiple bugs in a cell, make them fight
-            cellCrawlers[0]->fight(cellCrawlers);
+            cellBugs[0]->fight(cellBugs);
         }
     }
 }
 
-void tapBugBoard(vector<Crawler *> &crawlers)
+void tapBugBoard(vector<Bug *> &bugs)
 {
-    for (Crawler *crawler : crawlers)
+    for (Bug *bug : bugs)
     {
-        if (crawler->isAlive()) // only move bugs that are alive
+        if (bug->isAlive()) // only move bugs that are alive
         {
-            crawler->move();
+            bug->move();
         }
     }
 
-    // update the board with new crawler positions
-    bugBoard.addCrawlersToBoard(crawlers);
+    // update the board with new bug positions
+    bugBoard.addBugsToBoard(bugs);
 
     // check and handle fights in cells with multiple bugs
-    checkAndHandleFights(crawlers);
+    checkAndHandleFights(bugs);
 
-    cout << "All crawlers moved!" << endl;
+    cout << "All bugs moved!" << endl;
 }
 
-void displayLifeHistory(const vector<Crawler *>& crawlers) {
-    if (crawlers.empty()) {
+void displayLifeHistory(const vector<Bug *> &bugs)
+{
+    if (bugs.empty())
+    {
         cout << "No bugs to display." << endl;
         return;
     }
 
-    for (const Crawler* crawler : crawlers) {
-        cout << crawler->getLifeHistory() << endl;
+    for (const Bug *bug : bugs)
+    {
+        cout << bug->getLifeHistory() << endl;
     }
 }
 
-void saveLifeHistoryToFile(const vector<Crawler*>& crawlers)
+void saveLifeHistoryToFile(const vector<Bug *> &bugs)
 {
-    if (crawlers.empty()) {
+    if (bugs.empty())
+    {
         cout << "No bugs available." << endl;
         return;
     }
@@ -201,15 +236,15 @@ void saveLifeHistoryToFile(const vector<Crawler*>& crawlers)
     }
 
     outFile << dateAndTime << endl;
-    for (const Crawler* crawler : crawlers)
+    for (const Bug *bug : bugs)
     {
-        outFile << crawler->getLifeHistory() << endl;
+        outFile << bug->getLifeHistory() << endl;
     }
 
     cout << "Life history saved to " << filename.str() << endl;
 }
 
-void runSimulation(vector<Crawler*>& crawlers)
+void runSimulation(vector<Bug *> &bugs)
 {
     cout << "\nStarting simulation..." << endl;
     cout << "Tapping the board every 0.1 seconds" << endl;
@@ -217,57 +252,52 @@ void runSimulation(vector<Crawler*>& crawlers)
     int tapCount = 0;
     bool simulationComplete = false;
     int aliveCount = 0;
-    Crawler* lastCrawlerStanding = nullptr;
+    Bug *lastBugStanding = nullptr;
 
     while (!simulationComplete)
     {
         // https://stackoverflow.com/questions/50136540/calling-a-function-every-1-second-precisely
         clock_t startTime = clock();
-        while (clock() - startTime < CLOCKS_PER_SEC / 10); // 1/10 of a second
+        while (clock() - startTime < CLOCKS_PER_SEC / 10)
+            ; // 1/10 of a second
 
         // tap the board and increment counter
         tapCount++;
         cout << "\nTap #" << tapCount << endl;
         cout << string(60, '-') << endl;
-        // move all alive crawlers
-        for (Crawler* crawler : crawlers)
-        {
-            if (crawler->isAlive())
-            {
-                crawler->move();
-            }
-        }
+        // move all alive bugs
+        tapBugBoard(bugs);
 
-        // update the board with new crawler positions
-        bugBoard.addCrawlersToBoard(crawlers);
+        // update the board with new bug positions
+        bugBoard.addBugsToBoard(bugs);
         // trigger fights
-        checkAndHandleFights(crawlers);
+        checkAndHandleFights(bugs);
 
-        // count alive crawlers and display positions
+        // count alive bugs and display positions
         aliveCount = 0;
-        lastCrawlerStanding = nullptr; // reset last crawler standing each round
-        cout << "Crawler locations:" << endl;
-        for (Crawler* crawler : crawlers)
+        lastBugStanding = nullptr; // reset last bug standing each round
+        cout << "Bug locations:" << endl;
+        for (Bug *bug : bugs)
         {
-            if (crawler->isAlive())
+            if (bug->isAlive())
             {
-                Position pos = crawler->getPosition();
-                cout << "Crawler " << crawler->getBugID() << ": (" << pos.x << ", " << pos.y
-                     << "), Size: " << crawler->getSize() << endl;
+                Position pos = bug->getPosition();
+                cout << "Bug " << bug->getBugID() << ": (" << pos.x << ", " << pos.y
+                     << "), Size: " << bug->getSize() << endl;
                 aliveCount++;
-                lastCrawlerStanding = crawler;  // keep track of the last standing crawler
+                lastBugStanding = bug; // keep track of the last standing bug
             }
         }
-        cout << "\nAlive crawlers: " << aliveCount << "/" << crawlers.size() << endl;
+        cout << "\nAlive bugs: " << aliveCount << "/" << bugs.size() << endl;
 
         // end simulation if only 1 bug remains alive
         if (aliveCount <= 1)
         {
             simulationComplete = true;
             cout << "Simulation complete! " << endl;
-            if (lastCrawlerStanding)
+            if (lastBugStanding)
             {
-                cout << "Last bug standing: Crawler " << lastCrawlerStanding->getBugID() << endl;
+                cout << "Last bug standing: Bug " << lastBugStanding->getBugID() << endl;
             }
         }
 
@@ -281,18 +311,75 @@ void runSimulation(vector<Crawler*>& crawlers)
 
     // Display final state
     cout << "\nFinal state after " << tapCount << " taps:" << endl;
-    displayAllBugs(crawlers);
+    displayAllBugs(bugs);
 
     // Save results to file
-    saveLifeHistoryToFile(crawlers);
+    saveLifeHistoryToFile(bugs);
 }
 
-void selectChoice(vector<Crawler *> &crawlers)
+void startSFMLSimulation(vector<Bug *> &bugs)
+{
+    bool superBugExists = false;
+    SuperBug *superBug = nullptr;
+    // check if super bug already exists
+    for (Bug *bug : bugs)
+    {
+        // if existingSuperBug isn't a null pointer (tries to cast bug to SuperBug)
+        if (SuperBug *existingSuperBug = dynamic_cast<SuperBug *>(bug))
+        {
+            superBugExists = true;
+            if (!bug->isAlive())
+            {
+                cout << "SuperBug is dead. Please restart the simulation." << endl;
+                return;
+            }
+            superBug = existingSuperBug;
+            break;
+        }
+    }
+    if (!superBugExists)
+    {
+        // id: 999 for super bug
+        superBug = new SuperBug();
+        bugs.push_back(superBug);
+        // add super bug to board
+        bugBoard.addBugsToBoard(bugs);
+    }
+
+    BugRenderer renderer(800, 800);
+
+    while (renderer.isOpen())
+    {
+        // Process window events
+        renderer.processEvents(superBug, bugs);
+        
+        // move if super bug is alive
+        for (Bug *bug : bugs)
+        {
+            if (bug != superBug && bug->isAlive())
+            {
+                bug->move();
+            }
+        }
+
+        bugBoard.addBugsToBoard(bugs);
+        checkAndHandleFights(bugs);
+
+        // Render current state
+        renderer.render(bugBoard, bugs);
+
+        // Delay between frames
+        std::this_thread::sleep_for(std::chrono::milliseconds(600));
+    }
+}
+
+void selectChoice(vector<Bug *> &bugs)
 {
     int choice = 0;
 
     while (true)
     {
+        srand(time(NULL));
         displayMenu();
 
         cout << "Enter your choice: ";
@@ -308,12 +395,12 @@ void selectChoice(vector<Crawler *> &crawlers)
         {
         case 1:
         {
-            initializeBugBoard(crawlers);
+            initializeBugBoard(bugs);
             break;
         }
         case 2:
         {
-            displayAllBugs(crawlers);
+            displayAllBugs(bugs);
             break;
         }
         case 3:
@@ -321,17 +408,17 @@ void selectChoice(vector<Crawler *> &crawlers)
             int searchID;
             cout << "\nEnter bug ID to be found: ";
             cin >> searchID;
-            findBugByID(searchID, crawlers);
+            findBugByID(searchID, bugs);
             break;
         }
         case 4:
         {
-            tapBugBoard(crawlers);
+            tapBugBoard(bugs);
             break;
         }
         case 5:
         {
-            displayLifeHistory(crawlers);
+            displayLifeHistory(bugs);
             break;
         }
         case 6:
@@ -341,20 +428,34 @@ void selectChoice(vector<Crawler *> &crawlers)
         }
         case 7:
         {
-            if (crawlers.empty())
+            if (bugs.empty())
             {
                 cout << "Please initialize the bug board first (option 1)." << endl;
             }
             else
             {
-                runSimulation(crawlers);
+                runSimulation(bugs);
             }
             break;
         }
         case 8:
-            saveLifeHistoryToFile(crawlers);
+        {
+            if (bugs.empty())
+            {
+                cout << "Please initialize the bug board first (option 1)." << endl;
+            }
+            else
+            {
+                startSFMLSimulation(bugs);
+            }
+            break;
+        }
+        case 9:
+        {
+            saveLifeHistoryToFile(bugs);
             cout << "Exiting..." << endl;
             return;
+        }
         default:
             cout << "Invalid choice selected. Please choose between 1 and 8." << endl;
         }
@@ -363,6 +464,6 @@ void selectChoice(vector<Crawler *> &crawlers)
 
 int main()
 {
-    vector<Crawler *> crawlers;
-    selectChoice(crawlers);
+    vector<Bug *> bug_vector;
+    selectChoice(bug_vector);
 }

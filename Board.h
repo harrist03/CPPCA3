@@ -3,14 +3,14 @@
 
 #include <vector>
 #include <string>
-#include "Crawler.h"
+#include "Bug.h"
 
 using namespace std;
 
 struct Cell
 {
     int x, y;
-    vector<string> crawlerIDs;
+    vector<string> bugIDs;
 };
 
 class Board
@@ -22,7 +22,7 @@ private:
 public:
     Board();
     Cell getCell(int x, int y) const;
-    void addCrawlersToBoard(const vector<Crawler*> &crawlers);
+    void addBugsToBoard(const vector<Bug*> &bugs);
     void displayAllCells();
 };
 
