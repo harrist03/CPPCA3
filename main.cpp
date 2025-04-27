@@ -223,7 +223,7 @@ void saveLifeHistoryToFile(const vector<Bug *> &bugs)
     tm datetime = *localtime(&timestamp);
 
     char dateAndTime[50];
-    strftime(dateAndTime, 50, "%Y-%m-%d_%H:%M:%S", &datetime);
+    strftime(dateAndTime, 50, "%Y-%m-%d_%H-%M-%S", &datetime);
 
     stringstream filename;
     filename << "../bugs_life_history_" << dateAndTime << ".txt";

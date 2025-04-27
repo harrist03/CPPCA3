@@ -45,3 +45,5 @@ build
 /cmake-build-debug/CMakeFiles/CPPCA3.dir/Board.cpp.o
 /cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-c91f81c5f72a33c6e46d.json
 /cmake-build-debug/.cmake/api/v1/reply/target-CPPCA3-Debug-bd1b87d37ff369339544.json
+
+bugs_life_history_*.txt
