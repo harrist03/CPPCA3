@@ -371,6 +371,16 @@ void startSFMLSimulation(vector<Bug *> &bugs)
         // Delay between frames
         std::this_thread::sleep_for(std::chrono::milliseconds(600));
     }
+    cout << "\nSFML simulation ended. Saving results and exiting program..." << endl;
+    saveLifeHistoryToFile(bugs);
+
+    // Clean up memory before exit
+    for (Bug *bug : bugs) {
+        delete bug;
+    }
+
+    // Exit the program
+    exit(0);
 }
 
 void selectChoice(vector<Bug *> &bugs)

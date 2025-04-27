@@ -203,7 +203,7 @@ void BugRenderer::processEvents(SuperBug *superBug, vector<Bug *> &bugs)
     
     if (aliveBugs == 0 && superBug->isAlive())
     {
-        std::cout << "SuperBug has defeated all other bugs! Victory! Press 1. to restart simulation" << std::endl;
+        std::cout << "SuperBug has defeated all other bugs! Victory!" << std::endl;
         window.close();
     }
 }
