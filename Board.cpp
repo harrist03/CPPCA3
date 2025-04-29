@@ -3,9 +3,11 @@
 
 Board::Board()
 {
+    // creates 10 rows
     cells.resize(10);
     for (int y = 0; y < 10; y++)
     {
+        // each row has 10 columns
         cells[y].resize(10);
         for (int x = 0; x < 10; x++)
         {
@@ -20,7 +22,7 @@ Cell Board::getCell(int x, int y) const
     return cells[y][x];
 }
 
-void Board::addBugsToBoard(const vector<Bug*> &bugs)
+void Board::addBugsToBoard(const vector<Bug *> &bugs)
 {
     // Clear all existing bug IDs from the board
     for (int y = 0; y < 10; y++)
@@ -32,12 +34,15 @@ void Board::addBugsToBoard(const vector<Bug*> &bugs)
     }
 
     // Add bugs to their latest positions
-    for (Bug* bug : bugs)
+    for (Bug *bug : bugs)
     {
-        Position p = bug->getPosition();
-        string bugID = to_string(bug->getBugID());
+        if (bug->isAlive())
+        {
+            Position p = bug->getPosition();
+            string bugID = to_string(bug->getBugID());
 
-        cells[p.y][p.x].bugIDs.push_back(bugID);
+            cells[p.y][p.x].bugIDs.push_back(bugID);
+        }
     }
 }
 
@@ -49,7 +54,7 @@ void Board::displayAllCells()
     {
         for (int x = 0; x < 10; x++)
         {
-            const vector<string>& bugsInCell = cells[y][x].bugIDs;
+            const vector<string> &bugsInCell = cells[y][x].bugIDs;
             cout << "(" << y << ", " << x << "): ";
             if (bugsInCell.empty())
             {
@@ -61,7 +66,7 @@ void Board::displayAllCells()
                 {
                     if (i > 0)
                         cout << ", ";
-                        cout << "Bug " <<  bugsInCell[i];
+                    cout << "Bug " << bugsInCell[i];
                 }
                 cout << endl;
             }
